@@ -10,7 +10,7 @@ The system is designed to demonstrate clean backend architecture, database integ
 
 ## Tech Stack
 
-* Java 17
+* Java 26
 * Spring Boot
 * Spring Data JPA
 * MySQL
