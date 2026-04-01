@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Library System</title>
+</head>
+
+<body style="background-color:pink;">
+
+<h1 style="color: blue; text-align: center;">Library Book System</h1>
+<hr>
+
+<!-- ================= BOOK SECTION ================= -->
+
+<h3 style="color: blueviolet;">Add Book</h3>
+
+<label style="font-family: Verdana, Geneva, Tahoma, sans-serif;">Book Name</label>
+<input type="text" id="bookName"><br><br>
+
+<label>Author</label>
+<input type="text" id="author"><br><br>
+
+<label>Publisher</label>
+<input type="text" id="publisher"><br><br>
+
+<button onclick="addBook()">Add Book</button>
+
+<br><br>
+
+<h3>View Books</h3>
+<button onclick="getBooks()">Get Books</button>
+<ul id="list"></ul>
+
+<br><br>
+
+<h3>Update Book</h3>
+
+<label>ID</label>
+<input type="number" id="updateId"><br><br>
+
+<label>New Name</label>
+<input type="text" id="updateName"><br><br>
+
+<label>New Author</label>
+<input type="text" id="updateAuthor"><br><br>
+
+<label>New Publisher</label>
+<input type="text" id="updatePublisher"><br><br>
+
+<button onclick="updateBook()">Update</button>
+
+<br><br>
+
+<h3>Delete Book</h3>
+
+<label>ID</label>
+<input type="number" id="deleteId"><br><br>
+
+<button onclick="deleteBook()">Delete</button>
+
+<hr>
+
+<!-- ================= USER SECTION ================= -->
+
+<h2>User System</h2>
+
+<h3>Add User</h3>
+
+<label>Name</label>
+<input type="text" id="userName"><br><br>
+
+<label>Password</label>
+<input type="text" id="password"><br><br>
+
+<button onclick="addUser()">Add User</button>
+
+<br><br>
+
+<h3>View Users</h3>
+<button onclick="getUsers()">Get Users</button>
+<ul id="userList"></ul>
+
+<br><br>
+
+<h3>Update User</h3>
+
+<label>ID</label>
+<input type="number" id="userUpdateId"><br><br>
+
+<label>New Name</label>
+<input type="text" id="userUpdateName"><br><br>
+
+<label>New Password</label>
+<input type="text" id="userUpdatePassword"><br><br>
+
+<button onclick="updateUser()">Update User</button>
+
+<br><br>
+
+<h3>Delete User</h3>
+
+<label>ID</label>
+<input type="number" id="userDeleteId"><br><br>
+
+<button onclick="deleteUser()">Delete User</button>
+
+<script>
+
+    const BOOK_URL = "http://localhost:8080/books";
+    const USER_URL = "http://localhost:8080/users";
+
+    /* ================= BOOK FUNCTIONS ================= */
+
+    // ADD BOOK
+    function addBook() {
+        fetch(BOOK_URL + "/postbooks", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                bookName: document.getElementById("bookName").value,
+                author: document.getElementById("author").value,
+                publisher: document.getElementById("publisher").value
+            })
+        })
+            .then(res => res.json())
+            .then(() => {
+                alert("Book Added");
+                getBooks();
+            });
+    }
+
+    // GET BOOKS
+    function getBooks() {
+        fetch(BOOK_URL + "/getbooks")
+            .then(res => res.json())
+            .then(data => {
+                let list = document.getElementById("list");
+                list.innerHTML = "";
+
+                data.forEach(book => {
+                    let li = document.createElement("li");
+                    li.innerText = `${book.bookId} - ${book.bookName} - ${book.author} - ${book.publisher}`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    // UPDATE BOOK
+    function updateBook() {
+        let id = document.getElementById("updateId").value;
+
+        fetch(BOOK_URL + "/" + id, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                bookName: document.getElementById("updateName").value,
+                author: document.getElementById("updateAuthor").value,
+                publisher: document.getElementById("updatePublisher").value
+            })
+        })
+            .then(res => res.json())
+            .then(() => {
+                alert("Updated");
+                getBooks();
+            });
+    }
+
+    // DELETE BOOK
+    function deleteBook() {
+        let id = document.getElementById("deleteId").value;
+
+        fetch(BOOK_URL + "/" + id, {
+            method: "DELETE"
+        })
+            .then(() => {
+                alert("Deleted");
+                getBooks();
+            });
+    }
+
+
+    /* ================= USER FUNCTIONS ================= */
+
+    // ADD USER
+    function addUser() {
+        fetch(USER_URL + "/postuser", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("userName").value,
+                password: document.getElementById("password").value
+            })
+        })
+            .then(res => res.json())
+            .then(() => {
+                alert("User Added");
+                getUsers();
+            });
+    }
+
+    // GET USERS
+    function getUsers() {
+        fetch(USER_URL + "/api")
+            .then(res => res.json())
+            .then(data => {
+                let list = document.getElementById("userList");
+                list.innerHTML = "";
+
+                data.forEach(user => {
+                    let li = document.createElement("li");
+                    li.innerText = `${user.userId} - ${user.name}`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    // UPDATE USER
+    function updateUser() {
+        let id = document.getElementById("userUpdateId").value;
+
+        fetch(USER_URL + "/" + id, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("userUpdateName").value,
+                password: document.getElementById("userUpdatePassword").value
+            })
+        })
+            .then(res => res.json())
+            .then(() => {
+                alert("User Updated");
+                getUsers();
+            });
+    }
+
+    // DELETE USER
+    function deleteUser() {
+        let id = document.getElementById("userDeleteId").value;
+
+        fetch(USER_URL + "/" + id, {
+            method: "DELETE"
+        })
+            .then(() => {
+                alert("User Deleted");
+                getUsers();
+            });
+    }
+
+</script>
+
+</body>
+</html>
