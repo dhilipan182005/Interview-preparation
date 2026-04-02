@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parking Lot System</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .add { background: #00c853; color: white; }
+        .update { background: #ffab00; }
+        .delete { background: #d50000; color: white; }
+        .refresh { background: #2962ff; color: white; }
+
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #2a5298;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2> Parking Lot Dashboard</h2>
+
+    <div class="card">
+        <h3>Add Vehicle</h3>
+        <input id="owner" placeholder="Owner Name">
+        <input id="Id" placeholder="Vehicle id">
+        <input id="name" placeholder="Vehicle Name">
+
+        <button class="add" onclick="addVehicle()">Add</button>
+    </div>
+
+    <div class="card">
+        <h3>Update Vehicle</h3>
+        <input id="updateowner" placeholder="Owner Name">
+        <input id="updateId" placeholder="ID">
+        <input id="updateName" placeholder="Vehicle Name">
+
+        <button class="update" onclick="updateVehicle()">Update</button>
+    </div>
+
+    <div class="card">
+        <h3>Delete Vehicle</h3>
+        <input id="deleteId" placeholder="ID">
+        <button class="delete" onclick="deleteVehicle()">Delete</button>
+    </div>
+
+    <div class="card">
+        <h3>All Vehicles</h3>
+        <button class="refresh" onclick="getVehicles()">Refresh</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vehicle</th>
+                <th>Owner</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="vehicleTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8080/api";
+
+    function getVehicles() {
+        fetch(BASE_URL + "/vehicle")
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const table = document.getElementById("vehicleTable");
+                table.innerHTML = "";
+
+                data.forEach(v => {
+                    console.log("Vehicle Object:", v);
+
+                    const row = `
+<tr>
+    <td>${v.vehicleId}</td>
+    <td>${v.vehicleName}</td>
+    <td>${v.ownerName}</td>
+    <td>
+        <button onclick="fillUpdate(${v.vehicleId}, '${v.vehicleName}', '${v.ownerName}')">✏️</button>
+        <button onclick="deleteVehicle(${v.vehicleId})">🗑</button>
+    </td>
+</tr>
+`
+            ;
+                    table.innerHTML += row;
+                });
+            });
+    }
+
+    function addVehicle() {
+        fetch(BASE_URL + "/update", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                vehicleName: name.value,
+                ownerName: owner.value
+            })
+        }).then(() => getVehicles());
+    }
+
+    function updateVehicle() {
+        fetch(BASE_URL + "/" + updateId.value, {
+            method: "PUT",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                vehicleName: updateName.value,
+                ownerName: updateowner.value
+            })
+        }).then(() => getVehicles());
+    }
+
+    function deleteVehicle(id) {
+        if(!confirm("Delete this vehicle?")) return;
+
+        fetch(BASE_URL + "/" + (id || deleteId.value), {
+            method: "DELETE"
+        }).then(() => getVehicles());
+    }
+
+    function fillUpdate(id, name, owner) {
+        updateId.value = id;
+        updateName.value = name;
+        updateowner.value = owner;
+    }
+
+    getVehicles();
+</script>
+
+</body>
+</html>
