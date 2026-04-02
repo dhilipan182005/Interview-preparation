@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Billing System</title>
+</head>
+
+<body style="background-color: lightyellow;">
+
+<h1 style="color: blue; text-align: center;">Billing System</h1>
+<hr>
+
+<h3 style="color: green;">Add Product</h3>
+
+<label>Product Name</label>
+<input type="text" id="productName"><br><br>
+
+<label>Quantity</label>
+<input type="text" id="quantity"><br><br>
+
+<button onclick="addProduct()">Add Product</button>
+
+<br><br>
+
+<h3>View Products</h3>
+<button onclick="getProducts()">Get Products</button>
+<ul id="productList"></ul>
+
+<br><br>
+
+<h3>Update Product</h3>
+
+<label>ID</label>
+<input type="number" id="updateProductId"><br><br>
+
+<label>New Name</label>
+<input type="text" id="updateProductName"><br><br>
+
+<label>New Quantity</label>
+<input type="text" id="updateQuantity"><br><br>
+
+<button onclick="updateProduct()">Update</button>
+
+<br><br>
+
+<h3>Delete Product</h3>
+
+<label>ID</label>
+<input type="number" id="deleteProductId"><br><br>
+
+<button onclick="deleteProduct()">Delete</button>
+
+<hr>
+
+<h2>User System</h2>
+
+<h3>Add User</h3>
+
+<label>Name</label>
+<input type="text" id="userName"><br><br>
+
+<label>DateTime</label>
+<input type="text" id="datetime"><br><br>
+
+<button onclick="addUser()">Add User</button>
+
+<br><br>
+
+<h3>View Users</h3>
+<button onclick="getUsers()">Get Users</button>
+<ul id="userList"></ul>
+
+<br><br>
+
+<h3>Update User</h3>
+
+<label>ID</label>
+<input type="number" id="userUpdateId"><br><br>
+
+<label>New Name</label>
+<input type="text" id="userUpdateName"><br><br>
+
+<label>New DateTime</label>
+<input type="text" id="userUpdateDT"><br><br>
+
+<button onclick="updateUser()">Update User</button>
+
+<br><br>
+
+<h3>Delete User</h3>
+
+<label>ID</label>
+<input type="number" id="userDeleteId"><br><br>
+
+<button onclick="deleteUser()">Delete User</button>
+
+<hr>
+
+<h2>Billing System</h2>
+
+<h3>Add Bill</h3>
+
+<label>Biller Name</label>
+<input type="text" id="billerName"><br><br>
+
+<label>User ID</label>
+<input type="number" id="billUserId"><br><br>
+
+<label>Product ID</label>
+<input type="number" id="billProductId"><br><br>
+
+<button onclick="addBill()">Add Bill</button>
+
+<br><br>
+
+<h3>View Bills</h3>
+<button onclick="getBills()">Get Bills</button>
+<ul id="billList"></ul>
+
+<br><br>
+
+<h3>Delete Bill</h3>
+
+<label>ID</label>
+<input type="number" id="deleteBillId"><br><br>
+
+<button onclick="deleteBill()">Delete Bill</button>
+
+<script>
+
+    const PRODUCT_URL = "http://localhost:8080/product";
+    const USER_URL = "http://localhost:8080/users";
+    const BILL_URL = "http://localhost:8080/billing";
+
+    function addProduct() {
+        fetch(PRODUCT_URL + "/postproduct", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                productName: document.getElementById("Productname").value,
+                quantity: document.getElementById("quantity").value
+            })
+        }).then(() => {
+            alert("Product Added");
+            getProducts();
+        });
+    }
+
+    function getProducts() {
+        fetch(PRODUCT_URL + "/getproduct")
+            .then(res => res.json())
+            .then(data => {
+                let list = document.getElementById("productList");
+                list.innerHTML = "";
+
+                data.forEach(p => {
+                    let li = document.createElement("li");
+                    li.innerText = `${p.productId} - ${p.productname} - ${p.quantity}`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function updateProduct() {
+        let id = document.getElementById("updateProductId").value;
+
+        fetch(PRODUCT_URL + "/" + id, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                productName: document.getElementById("updateProductName").value,
+                quantity: document.getElementById("updateQuantity").value
+            })
+        }).then(() => {
+            alert("Updated");
+            getProducts();
+        });
+    }
+
+    function deleteProduct() {
+        let id = document.getElementById("deleteProductId").value;
+
+        fetch(PRODUCT_URL + "/" + id, {
+            method: "DELETE"
+        }).then(() => {
+            alert("Deleted");
+            getProducts();
+        });
+    }
+
+    function addUser() {
+        fetch(USER_URL + "/postuser", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("userName").value,
+                d_T: document.getElementById("datetime").value
+            })
+        }).then(() => {
+            alert("User Added");
+            getUsers();
+        });
+    }
+
+    function getUsers() {
+        fetch(USER_URL + "/api")
+            .then(res => res.json())
+            .then(data => {
+                let list = document.getElementById("userList");
+                list.innerHTML = "";
+
+                data.forEach(u => {
+                    let li = document.createElement("li");
+                    li.innerText = `${u.userId} - ${u.name}`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function updateUser() {
+        let id = document.getElementById("userUpdateId").value;
+
+        fetch(USER_URL + "/" + id, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("userUpdateName").value,
+                d_T: document.getElementById("userUpdateDT").value
+            })
+        }).then(() => {
+            alert("Updated");
+            getUsers();
+        });
+    }
+
+    function deleteUser() {
+        let id = document.getElementById("userDeleteId").value;
+
+        fetch(USER_URL + "/" + id, {
+            method: "DELETE"
+        }).then(() => {
+            alert("Deleted");
+            getUsers();
+        });
+    }
+
+    function addBill() {
+        fetch("http://localhost:8080/billing/postbilling", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                billerName: document.getElementById("billerName").value,
+                user: {
+                    userId: parseInt(document.getElementById("billUserId").value)
+                },
+                product: {
+                    productId: parseInt(document.getElementById("billProductId").value)
+                }
+            })
+        }).then(() => {
+            alert("Bill Added");
+            getBills();
+        });
+    }
+
+    function getBills() {
+        fetch(BILL_URL)
+            .then(res => res.json())
+            .then(data => {
+                let list = document.getElementById("billList");
+                list.innerHTML = "";
+
+                data.forEach(b => {
+                    let li = document.createElement("li");
+                    li.innerText = `${b.billingId} - ${b.billerName}`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function deleteBill() {
+        let id = document.getElementById("deleteBillId").value;
+
+        fetch(BILL_URL + "/" + id, {
+            method: "DELETE"
+        }).then(() => {
+            alert("Deleted");
+            getBills();
+        });
+    }
+
+</script>
+
+</body>
+</html>
