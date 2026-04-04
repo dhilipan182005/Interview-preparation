@@ -2,7 +2,9 @@
 
 ## Overview
 
-This project is a Spring Boot–based Billing System that provides REST APIs to manage Users, Products, and Billing records. It supports basic CRUD operations and can be tested using tools like Postman or integrated with a frontend interface.
+This project is a Spring Boot–based Billing System that provides REST APIs to manage Users, Products, and Billing records. It supports full CRUD operations and includes business logic to calculate product pricing and generate structured billing responses.
+
+The system returns billing details in a clean format including user name, product name, price, and total price.
 
 ---
 
@@ -12,9 +14,9 @@ This project is a Spring Boot–based Billing System that provides REST APIs to 
 * Spring Boot
 * Spring Data JPA
 * Hibernate
-* MySQL (or any compatible relational database)
+* MySQL
 * REST API
-* HTML (for basic frontend testing)
+* HTML (for frontend testing)
 
 ---
 
@@ -27,6 +29,7 @@ org.example.billingsystem
 ├── service          # Business logic layer
 ├── repo             # Database access layer
 ├── entity           # JPA entities
+├── dto              # Response DTOs
 └── BillingsystemApplication.java
 ```
 
@@ -36,7 +39,7 @@ org.example.billingsystem
 
 ### Product Management
 
-* Add Product
+* Add Product with price
 * View Products
 * Update Product
 * Delete Product
@@ -51,7 +54,7 @@ org.example.billingsystem
 ### Billing Management
 
 * Create Bill
-* View Bills
+* View Bills with formatted output
 * Delete Bill
 
 ---
@@ -82,11 +85,28 @@ org.example.billingsystem
 
 ### Billing APIs
 
-| Method | Endpoint             | Description   |
-| ------ | -------------------- | ------------- |
-| GET    | /billing/getbilling  | Get all bills |
-| POST   | /billing/postbilling | Create bill   |
-| DELETE | /billing/{id}        | Delete bill   |
+| Method | Endpoint             | Description               |
+| ------ | -------------------- | ------------------------- |
+| GET    | /billing/getbilling  | Get all bills (formatted) |
+| POST   | /billing/postbilling | Create bill               |
+| DELETE | /billing/{id}        | Delete bill               |
+
+---
+
+## Billing Response Format
+
+Billing API returns structured data:
+
+```
+{
+  "billingId": 1,
+  "billerName": "Admin",
+  "userName": "John",
+  "productName": "Pen",
+  "price": 20.0,
+  "totalPrice": 20.0
+}
+```
 
 ---
 
@@ -99,6 +119,8 @@ git clone <repository-url>
 cd billing-system
 ```
 
+---
+
 ### 2. Configure Database
 
 Update `application.properties`:
@@ -109,6 +131,8 @@ spring.datasource.username=root
 spring.datasource.password=your_password
 spring.jpa.hibernate.ddl-auto=update
 ```
+
+---
 
 ### 3. Run the Application
 
@@ -128,13 +152,11 @@ http://localhost:8080
 
 ### Using Postman
 
-* Send requests to the endpoints listed above
-* Use JSON format for POST and PUT requests
+1. Add Product
+2. Add User
+3. Create Billing
 
-### Using HTML Frontend
-
-* Open the HTML file in a browser
-* Perform operations using UI buttons
+Use JSON format for POST and PUT requests.
 
 ---
 
@@ -144,10 +166,13 @@ http://localhost:8080
 
 ```
 {
-  "productName": "Laptop",
-  "quantity": "5"
+  "productName": "Pen",
+  "quantity": "10",
+  "price": 20.0
 }
 ```
+
+---
 
 ### User
 
@@ -157,6 +182,8 @@ http://localhost:8080
   "d_T": "2026-04-02 10:30:00"
 }
 ```
+
+---
 
 ### Billing
 
@@ -176,20 +203,21 @@ http://localhost:8080
 
 ## Notes
 
-* Ensure the database is running before starting the application
-* JSON field names must match entity field names exactly
-* Billing requires existing User and Product IDs
-* Create Product and User before creating Billing
+* Ensure database is running before starting the application
+* Product and User must exist before creating Billing
+* JSON field names must match entity fields
+* Billing automatically calculates total price based on product price
 
 ---
 
 ## Future Improvements
 
-* Add validation and error handling
-* Implement DTO pattern
+* Add quantity-based billing (price × quantity)
+* Add validation and exception handling
+* Implement DTO for all entities
 * Improve UI design
 * Add authentication and authorization
-* Enhance entity relationships and mapping
+* Generate invoice reports
 
 ---
 
