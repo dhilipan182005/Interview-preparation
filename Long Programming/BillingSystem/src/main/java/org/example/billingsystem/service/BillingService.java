@@ -1,30 +1,27 @@
-package org.example.billingsystem.service;
+package org.example.billingsystem.entity;
 
-import org.example.billingsystem.entity.Billing;
-import org.example.billingsystem.repo.BillingRepo;
-import org.springframework.stereotype.Service;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
+@Entity
+@Getter
+@Setter
+public class Billing {
 
-@Service
-public class BillingService {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long billingId;
 
-    private final BillingRepo repo;
+    private String billerName;
 
-    public BillingService(BillingRepo repo) {
-        this.repo = repo;
-    }
+    private Double totalPrice;
 
-    public List<Billing> getAllBills() {
-        return repo.findAll();
-    }
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Billing addBill(Billing b) {
-        return repo.save(b);
-    }
-
-    public String deleteBill(Long id) {
-        repo.deleteById(id);
-        return "Deleted successfully";
-    }
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

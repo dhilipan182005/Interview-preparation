@@ -15,6 +15,8 @@ public class Billing {
 
     private String billerName;
 
+    private Double totalPrice;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

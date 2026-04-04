@@ -18,4 +18,7 @@ public class Product {
 
     @Column(name = "quantity")
     private String quantity;
+
+    @Column(name = "price")
+    private Double price;
 }
