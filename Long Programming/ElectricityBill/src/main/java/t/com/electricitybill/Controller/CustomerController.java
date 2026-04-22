@@ -2,33 +2,33 @@ package t.com.electricitybill.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import t.com.electricitybill.DHO.Customer;
-import t.com.electricitybill.Service.CustomerService;
+import t.com.electricitybill.DHO.Billing;
+import t.com.electricitybill.Service.BillingService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Customer")
-public class CustomerController {
+@RequestMapping("/Billing")
+public class BillingController {
     @Autowired
-    private CustomerService cs;
-
-    @GetMapping("/details")
-    public List<Customer> getalldetails(){
-        return cs.getalldetails();
+    private BillingService bs;
+    @GetMapping("/get")
+    public List<Billing> getBillings(){
+        return bs.getAllBills();
     }
-
     @PostMapping("/update")
-    public Customer postCust(@RequestBody Customer c){
-        return cs.postCust(c);
+    public Billing PostBill(@RequestBody Billing b) {
+        return bs.PostBill(b);
     }
     @PutMapping("/{id}")
-    public Customer putCust(@RequestBody Customer c, @PathVariable int id){
-        return cs.putCust(c,id);
+    public Billing PutBill(@RequestBody Billing b, @PathVariable int id){
+        return bs.PutBill(id, b);
     }
 
     @DeleteMapping("/{id}")
-    public String DeleteCust(@PathVariable int id){
-        return cs.DeleteCust(id);
+    public String deleteBill(@PathVariable int id) {
+        return bs.deleteBill(id);
     }
+
 }
