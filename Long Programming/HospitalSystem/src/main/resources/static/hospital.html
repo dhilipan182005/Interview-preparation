@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital System</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #eef2f3;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        fieldset {
+            background: white;
+            padding: 15px;
+            margin: 20px auto;
+            width: 480px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        input, select {
+            width: 95%;
+            padding: 8px;
+            margin: 6px 0;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin-top: 5px;
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        li {
+            margin-bottom: 10px;
+            background: #f7f7f7;
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 1.5;
+        }
+
+        .bill {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Hospital Appointment System</h1>
+
+<!-- PATIENT -->
+<fieldset>
+    <h3>Patient</h3>
+
+    <input type="text" id="pName" placeholder="Name">
+    <input type="text" id="gender" placeholder="Gender">
+    <input type="text" id="blood" placeholder="Blood Group">
+    <input type="text" id="phone" placeholder="Phone">
+
+    <button onclick="addPatient()">Add Patient</button>
+    <button onclick="getPatients()">View Patients</button>
+
+    <ul id="pList"></ul>
+
+    <input type="number" id="pDeleteId" placeholder="Delete ID">
+    <button onclick="deletePatient()">Delete</button>
+</fieldset>
+
+<!-- APPOINTMENT -->
+<fieldset>
+    <h3>Appointment + Billing</h3>
+
+    <input type="date" id="date">
+    <input type="text" id="reason" placeholder="Reason">
+
+    <label>Patient</label>
+    <select id="patientDropdown"></select>
+
+    <label>Doctor</label>
+    <select id="doctorDropdown"></select>
+
+    <button onclick="addAppointment()">Create Appointment</button>
+    <button onclick="getAppointments()">View Appointments</button>
+
+    <ul id="aList"></ul>
+
+    <input type="number" id="aDeleteId" placeholder="Delete ID">
+    <button onclick="deleteAppointment()">Delete</button>
+</fieldset>
+
+<script>
+
+    const PAT_URL = "http://localhost:8080/Patient";
+    const DOC_URL = "http://localhost:8080/Doctor";
+    const APP_URL = "http://localhost:8080/Appointment";
+
+    /* COMMON RESPONSE HANDLER */
+    function checkResponse(res) {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+    }
+
+    /* LOAD DROPDOWNS */
+    function loadDropdowns() {
+
+        fetch(PAT_URL + "/get")
+            .then(checkResponse)
+            .then(data => {
+                patientDropdown.innerHTML = "";
+                data.forEach(p => {
+                    patientDropdown.innerHTML +=
+                        `<option value="${p.patient_id}">${p.patient_name}</option>`;
+                });
+            });
+
+        fetch(DOC_URL + "/get")
+            .then(checkResponse)
+            .then(data => {
+                doctorDropdown.innerHTML = "";
+                data.forEach(d => {
+                    doctorDropdown.innerHTML +=
+                        `<option value="${d.doc_id}">
+                ${d.doc_name} (₹${d.consultation_fee})
+            </option>`;
+                });
+            });
+    }
+
+    /* PATIENT */
+    function addPatient() {
+
+        if (!pName.value || !gender.value || !blood.value || !phone.value) {
+            alert("Fill all fields");
+            return;
+        }
+
+        fetch(PAT_URL + "/create", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                patient_name: pName.value,
+                gender: gender.value,
+                blood_group: blood.value,
+                phone_no: phone.value
+            })
+        })
+            .then(checkResponse)
+            .then(() => {
+                alert("Patient Added");
+                getPatients();
+                loadDropdowns();
+            })
+            .catch(() => alert("Error adding patient"));
+    }
+
+    function getPatients() {
+        fetch(PAT_URL + "/get")
+            .then(checkResponse)
+            .then(data => {
+                pList.innerHTML = "";
+                data.forEach(p => {
+                    pList.innerHTML += `<li>${p.patient_id} - ${p.patient_name}</li>`;
+                });
+            });
+    }
+
+    function deletePatient() {
+        if (!pDeleteId.value) {
+            alert("Enter ID");
+            return;
+        }
+
+        fetch(PAT_URL + "/" + pDeleteId.value, {method:"DELETE"})
+            .then(() => {
+                alert("Deleted");
+                getPatients();
+                loadDropdowns();
+            });
+    }
+
+    /* APPOINTMENT */
+    function addAppointment() {
+
+        if (!date.value || !reason.value) {
+            alert("Fill all fields");
+            return;
+        }
+
+        fetch(APP_URL + "/create", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                date: date.value,
+                reason: reason.value,
+                patient: { patient_id: parseInt(patientDropdown.value) },
+                doctor: { doc_id: parseInt(doctorDropdown.value) }
+            })
+        })
+            .then(checkResponse)
+            .then(() => {
+                alert("Appointment Created");
+                getAppointments();
+            })
+            .catch(() => alert("Error creating appointment"));
+    }
+
+    /* BILLING VIEW */
+    function getAppointments() {
+        fetch(APP_URL + "/get")
+            .then(checkResponse)
+            .then(data => {
+                aList.innerHTML = "";
+
+                data.forEach(a => {
+
+                    let fee = a.doctor?.consultation_fee || 0;
+                    let total = a.payment?.total_amount || fee;
+
+                    aList.innerHTML += `
+            <li>
+                <b>ID:</b> ${a.ap_id}<br>
+                <b>Date:</b> ${a.date}<br>
+                <b>Reason:</b> ${a.reason}<br>
+                <b>Patient:</b> ${a.patient?.patient_name}<br>
+                <b>Doctor:</b> ${a.doctor?.doc_name}<br>
+                <span class="bill">Consultation Fee: ₹${fee}</span><br>
+                <span class="bill">Total Bill: ₹${total}</span>
+            </li>`;
+                });
+            });
+    }
+
+    function deleteAppointment() {
+        if (!aDeleteId.value) {
+            alert("Enter ID");
+            return;
+        }
+
+        fetch(APP_URL + "/" + aDeleteId.value, {method:"DELETE"})
+            .then(() => {
+                alert("Deleted");
+                getAppointments();
+            });
+    }
+
+    /* INIT */
+    loadDropdowns();
+
+</script>
+
+</body>
+</html>

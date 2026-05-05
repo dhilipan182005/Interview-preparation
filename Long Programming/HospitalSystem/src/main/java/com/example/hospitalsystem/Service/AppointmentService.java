@@ -2,20 +2,20 @@ package com.example.hospitalsystem.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.hospitalsystem.DHO.Appointment;
-import com.example.hospitalsystem.DHO.Doctor;
-import com.example.hospitalsystem.DHO.Patient;
-import com.example.hospitalsystem.Repository.AppointmentRepo;
-import com.example.hospitalsystem.Repository.DoctorRepo;
-import com.example.hospitalsystem.Repository.PatientRepo;
+import com.example.hospitalsystem.DHO.*;
+import com.example.hospitalsystem.Repository.*;
+
 import java.util.List;
 
 @Service
 public class AppointmentService {
+
     @Autowired
     private AppointmentRepo ar;
+
     @Autowired
     private PatientRepo pr;
+
     @Autowired
     private DoctorRepo dr;
 
@@ -24,6 +24,7 @@ public class AppointmentService {
     }
 
     public Appointment postAppointment(Appointment a) {
+
         int patientId = a.getPatient().getPatient_id();
         Patient patient = pr.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
@@ -34,10 +35,17 @@ public class AppointmentService {
 
         a.setPatient(patient);
         a.setDoctor(doctor);
+
+        if (a.getPayment() != null) {
+            a.getPayment().setAppointment(a);
+            a.getPayment().setTotal_amount(doctor.getConsultation_fee());
+        }
+
         return ar.save(a);
     }
 
     public Appointment putAppointment(int id, Appointment a) {
+
         Appointment existing = ar.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
@@ -53,6 +61,10 @@ public class AppointmentService {
         Doctor doctor = dr.findById(docId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
         existing.setDoctor(doctor);
+
+        if (existing.getPayment() != null) {
+            existing.getPayment().setTotal_amount(doctor.getConsultation_fee());
+        }
 
         return ar.save(existing);
     }

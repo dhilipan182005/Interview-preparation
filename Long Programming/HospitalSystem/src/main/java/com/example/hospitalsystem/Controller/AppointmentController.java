@@ -8,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/Appointment")
+@CrossOrigin(origins = "http://localhost:63342")
 public class AppointmentController {
     @Autowired
     private AppointmentService as;
